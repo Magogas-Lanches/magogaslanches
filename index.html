@@ -190,13 +190,15 @@
   .checkout-box .ck-title{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:4px}
   .checkout-box .ck-total{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;color:var(--gold);margin-bottom:20px;line-height:1}
   .checkout-box label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:6px;margin-top:16px}
-  .checkout-box input, .checkout-box textarea{
+  .checkout-box input, .checkout-box textarea, .checkout-box select{
     width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(233,192,121,.20);
     border-radius:12px;padding:12px 14px;color:var(--cream);font-size:.97rem;font-family:'Manrope',sans-serif;
     outline:none;transition:border-color .2s;resize:vertical;
+    -webkit-appearance:none;appearance:none;
   }
-  .checkout-box input:focus, .checkout-box textarea:focus{border-color:var(--gold)}
+  .checkout-box input:focus, .checkout-box textarea:focus, .checkout-box select:focus{border-color:var(--gold)}
   .checkout-box input::placeholder, .checkout-box textarea::placeholder{color:var(--cream-dim);opacity:.5}
+  .checkout-box select option{background:#2C1204;color:var(--cream)}
   .checkout-box textarea{min-height:80px}
   .checkout-box .ck-send{
     margin-top:22px;width:100%;background:linear-gradient(180deg,var(--gold-hi),var(--gold) 55%,var(--bronze));
@@ -415,6 +417,17 @@
     <input type="text" id="ckEndereco" placeholder="Ex.: Rua das Flores, 123" autocomplete="street-address">
     <label for="ckRef">Ponto de referência</label>
     <input type="text" id="ckRef" placeholder="Ex.: Próximo ao mercado">
+    <label for="ckPgto">Forma de pagamento</label>
+    <select id="ckPgto">
+      <option value="">Selecione...</option>
+      <option value="Pix">Pix</option>
+      <option value="Cartão">Cartão na entrega</option>
+      <option value="Dinheiro">Dinheiro</option>
+    </select>
+    <div id="ckTrocoWrap" style="display:none">
+      <label for="ckTroco">Precisa de troco? Para quanto?</label>
+      <input type="text" id="ckTroco" placeholder="Ex.: Troco para R$ 50,00">
+    </div>
     <label for="ckObs">Observações <span style="opacity:.55;text-transform:none;letter-spacing:0">(opcional)</span></label>
     <textarea id="ckObs" placeholder="Ex.: sem cebola, bacon extra"></textarea>
     <button class="ck-send" id="ckSend">Enviar pedido no WhatsApp</button>
@@ -574,6 +587,9 @@
     document.getElementById('ckNome').value='';
     document.getElementById('ckEndereco').value='';
     document.getElementById('ckRef').value='';
+    document.getElementById('ckPgto').value='';
+    document.getElementById('ckTroco').value='';
+    document.getElementById('ckTrocoWrap').style.display='none';
     document.getElementById('ckObs').value='';
     checkoutModal.classList.add('show');
   }
@@ -583,12 +599,33 @@
   checkoutModal.addEventListener('click', e=>{ if(e.target===checkoutModal) closeCheckout(); });
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCheckout(); });
 
+  document.getElementById('ckPgto').addEventListener('change', function(){
+    document.getElementById('ckTrocoWrap').style.display = this.value==='Dinheiro' ? 'block' : 'none';
+  });
+
   document.getElementById('ckSend').addEventListener('click',()=>{
     const nome     = document.getElementById('ckNome').value.trim();
     const endereco = document.getElementById('ckEndereco').value.trim();
     const ref      = document.getElementById('ckRef').value.trim();
+    const pgto     = document.getElementById('ckPgto').value.trim();
+    const troco    = document.getElementById('ckTroco').value.trim();
     const obs      = document.getElementById('ckObs').value.trim();
-    window.open(`https://wa.me/${WHATSAPP}?text=${buildMessage(nome,endereco,ref,obs)}`,'_blank');
+
+    const {total}=totals();
+    let msg="Olá, Magoga's Lanches! Quero fazer um pedido:\n\n";
+    MENU.forEach(m=>{
+      const q=qty[m.nome]||0;
+      if(q>0) msg+=`• ${q}x ${m.nome}: ${brl(q*m.preco)}\n`;
+    });
+    msg+=`\n*Total: ${brl(total)}*`;
+    if(nome)     msg+=`\n\nMeu Nome: ${nome}`;
+    if(endereco) msg+=`\nEndereço para entrega: ${endereco}`;
+    if(ref)      msg+=`\nPonto de Referência: ${ref}`;
+    if(pgto)     msg+=`\nForma de pagamento: ${pgto}`;
+    if(pgto==='Dinheiro' && troco) msg+=`\nTroco para: ${troco}`;
+    if(obs)      msg+=`\nObservações: ${obs}`;
+
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,'_blank');
     closeCheckout();
   });
 
