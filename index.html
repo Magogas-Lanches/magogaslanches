@@ -173,6 +173,40 @@
   .ver-foto svg{width:15px;height:15px;flex-shrink:0}
 
   /* ---------- PHOTO MODAL ---------- */
+  /* ---------- CHECKOUT MODAL ---------- */
+  .checkout-modal{position:fixed;inset:0;z-index:300;background:rgba(4,2,1,.88);display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+  .checkout-modal.show{display:flex}
+  .checkout-box{
+    background:linear-gradient(160deg,#2C1204,#1A0B04);
+    border:1px solid rgba(233,192,121,.25);border-radius:22px;
+    width:100%;max-width:480px;padding:28px 24px 24px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.9);
+    position:relative;
+  }
+  .checkout-box .ck-close{
+    position:absolute;top:14px;right:16px;background:none;border:none;
+    color:var(--cream-dim);font-size:1.5rem;cursor:pointer;line-height:1;
+  }
+  .checkout-box .ck-title{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:4px}
+  .checkout-box .ck-total{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:700;color:var(--gold);margin-bottom:20px;line-height:1}
+  .checkout-box label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:6px;margin-top:16px}
+  .checkout-box input, .checkout-box textarea{
+    width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(233,192,121,.20);
+    border-radius:12px;padding:12px 14px;color:var(--cream);font-size:.97rem;font-family:'Manrope',sans-serif;
+    outline:none;transition:border-color .2s;resize:vertical;
+  }
+  .checkout-box input:focus, .checkout-box textarea:focus{border-color:var(--gold)}
+  .checkout-box input::placeholder, .checkout-box textarea::placeholder{color:var(--cream-dim);opacity:.5}
+  .checkout-box textarea{min-height:80px}
+  .checkout-box .ck-send{
+    margin-top:22px;width:100%;background:linear-gradient(180deg,var(--gold-hi),var(--gold) 55%,var(--bronze));
+    color:#241206;font-family:'Manrope',sans-serif;font-weight:800;font-size:1.05rem;
+    border:none;border-radius:14px;padding:16px;cursor:pointer;
+    box-shadow:0 10px 24px -10px rgba(233,192,121,.6),inset 0 1px 0 rgba(255,255,255,.4);
+    transition:filter .2s;
+  }
+  .checkout-box .ck-send:hover{filter:brightness(1.07)}
+
   .photo-modal{position:fixed;inset:0;z-index:200;background:rgba(6,3,1,.86);display:none;align-items:center;justify-content:center;padding:24px}
   .photo-modal.show{display:flex}
   .photo-modal .box{position:relative;width:100%;max-width:480px;background:var(--plaque-2);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
@@ -362,14 +396,30 @@
   <div class="wrap">
     <div class="eyebrow">Bateu a fome?</div>
     <h2 class="sec-title">Peça agora o seu lanche</h2>
-    <p class="sec-sub">Chame a gente direto no WhatsApp e monte seu pedido.</p>
-    <a href="#" class="btn btn-wa" id="closeWa">Chamar no WhatsApp</a>
     <div class="contact">
       <div><a href="https://www.instagram.com/magogaslanches" target="_blank" rel="noopener" class="ig-link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg> @magogaslanches</a></div>
     </div>
   </div>
 </section>
 
+
+<!-- CHECKOUT MODAL -->
+<div class="checkout-modal" id="checkoutModal" aria-modal="true" role="dialog">
+  <div class="checkout-box">
+    <button class="ck-close" id="checkoutClose" aria-label="Fechar">&times;</button>
+    <div class="ck-title">Total</div>
+    <div class="ck-total" id="ckTotal">R$ 0,00</div>
+    <label for="ckNome">Seu nome</label>
+    <input type="text" id="ckNome" placeholder="Ex.: João Silva" autocomplete="name">
+    <label for="ckEndereco">Endereço para entrega</label>
+    <input type="text" id="ckEndereco" placeholder="Ex.: Rua das Flores, 123" autocomplete="street-address">
+    <label for="ckRef">Ponto de referência</label>
+    <input type="text" id="ckRef" placeholder="Ex.: Próximo ao mercado">
+    <label for="ckObs">Observações <span style="opacity:.55;text-transform:none;letter-spacing:0">(opcional)</span></label>
+    <textarea id="ckObs" placeholder="Ex.: sem cebola, bacon extra"></textarea>
+    <button class="ck-send" id="ckSend">Enviar pedido no WhatsApp</button>
+  </div>
+</div>
 
 <!-- PHOTO MODAL -->
 <div class="photo-modal" id="photoModal" aria-hidden="true">
@@ -499,26 +549,52 @@
     cartBar.classList.toggle('show',count>0);
   }
 
-  function buildMessage(){
+  function buildMessage(nome, endereco, ref, obs){
     const {total}=totals();
     let msg="Olá, Magoga's Lanches! Quero fazer um pedido:\n\n";
     MENU.forEach(m=>{
       const q=qty[m.nome]||0;
       if(q>0) msg+=`• ${q}x ${m.nome}: ${brl(q*m.preco)}\n`;
     });
-    msg+=`\n*Total: ${brl(total)}*\n\nMeu Nome:\nMeu endereço para entrega:\nPonto de Referência:`;
+    msg+=`\n*Total: ${brl(total)}*`;
+    if(nome)     msg+=`\n\nMeu Nome: ${nome}`;
+    if(endereco) msg+=`\nEndereço para entrega: ${endereco}`;
+    if(ref)      msg+=`\nPonto de Referência: ${ref}`;
+    if(obs)      msg+=`\nObservações: ${obs}`;
     return encodeURIComponent(msg);
   }
 
-  function checkout(){
-    const {count}=totals();
+  const checkoutModal = document.getElementById('checkoutModal');
+  const ckTotal       = document.getElementById('ckTotal');
+
+  function openCheckout(){
+    const {count,total}=totals();
     if(count===0){document.getElementById('cardapio').scrollIntoView({behavior:'smooth'});return;}
-    window.open(`https://wa.me/${WHATSAPP}?text=${buildMessage()}`,'_blank');
+    ckTotal.textContent = brl(total);
+    document.getElementById('ckNome').value='';
+    document.getElementById('ckEndereco').value='';
+    document.getElementById('ckRef').value='';
+    document.getElementById('ckObs').value='';
+    checkoutModal.classList.add('show');
   }
-  document.getElementById('checkoutBtn').addEventListener('click',checkout);
+  function closeCheckout(){ checkoutModal.classList.remove('show'); }
+
+  document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
+  checkoutModal.addEventListener('click', e=>{ if(e.target===checkoutModal) closeCheckout(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCheckout(); });
+
+  document.getElementById('ckSend').addEventListener('click',()=>{
+    const nome     = document.getElementById('ckNome').value.trim();
+    const endereco = document.getElementById('ckEndereco').value.trim();
+    const ref      = document.getElementById('ckRef').value.trim();
+    const obs      = document.getElementById('ckObs').value.trim();
+    window.open(`https://wa.me/${WHATSAPP}?text=${buildMessage(nome,endereco,ref,obs)}`,'_blank');
+    closeCheckout();
+  });
 
   const plainWa=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Olá, Magoga's Lanches! Gostaria de fazer um pedido.")}`;
   document.getElementById('closeWa').href=plainWa;
+  document.getElementById('checkoutBtn').addEventListener('click', openCheckout);
 
   updateCart();
 </script>
