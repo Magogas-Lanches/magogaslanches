@@ -415,6 +415,8 @@
     <input type="text" id="ckNome" placeholder="Ex.: João Silva" autocomplete="name">
     <label for="ckEndereco">Endereço para entrega</label>
     <input type="text" id="ckEndereco" placeholder="Ex.: Rua das Flores, 123" autocomplete="street-address">
+    <label for="ckBairro">Bairro</label>
+    <input type="text" id="ckBairro" placeholder="Ex.: Centro">
     <label for="ckRef">Ponto de referência</label>
     <input type="text" id="ckRef" placeholder="Ex.: Próximo ao mercado">
     <label for="ckPgto">Forma de pagamento</label>
@@ -586,6 +588,7 @@
     ckTotal.textContent = brl(total);
     document.getElementById('ckNome').value='';
     document.getElementById('ckEndereco').value='';
+    document.getElementById('ckBairro').value='';
     document.getElementById('ckRef').value='';
     document.getElementById('ckPgto').value='';
     document.getElementById('ckTroco').value='';
@@ -606,6 +609,7 @@
   document.getElementById('ckSend').addEventListener('click',()=>{
     const nome     = document.getElementById('ckNome').value.trim();
     const endereco = document.getElementById('ckEndereco').value.trim();
+    const bairro   = document.getElementById('ckBairro').value.trim();
     const ref      = document.getElementById('ckRef').value.trim();
     const pgto     = document.getElementById('ckPgto').value.trim();
     const troco    = document.getElementById('ckTroco').value.trim();
@@ -620,6 +624,7 @@
     msg+=`\n*Total: ${brl(total)}*`;
     if(nome)     msg+=`\n\nMeu Nome: ${nome}`;
     if(endereco) msg+=`\nEndereço para entrega: ${endereco}`;
+    if(bairro)   msg+=`\nBairro: ${bairro}`;
     if(ref)      msg+=`\nPonto de Referência: ${ref}`;
     if(pgto)     msg+=`\nForma de pagamento: ${pgto}`;
     if(pgto==='Dinheiro' && troco) msg+=`\nTroco para: ${troco}`;
@@ -634,5 +639,10 @@
 
   updateCart();
 </script>
+<footer style="background:#09060300;padding:14px 0 80px;text-align:center;border-top:1px solid rgba(233,192,121,.08)">
+  <p style="color:rgba(180,160,124,.45);font-size:.72rem;letter-spacing:.06em">
+    Desenvolvido por <a href="https://www.instagram.com/witterveloso" target="_blank" rel="noopener" style="color:rgba(233,192,121,.55);text-decoration:none;font-weight:600">Witter Veloso</a> &mdash; Soluções com Inteligência Artificial
+  </p>
+</footer>
 </body>
 </html>
