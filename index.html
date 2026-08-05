@@ -432,6 +432,7 @@
     </div>
     <label for="ckObs">Observações <span style="opacity:.55;text-transform:none;letter-spacing:0">(opcional)</span></label>
     <textarea id="ckObs" placeholder="Ex.: sem cebola, bacon extra"></textarea>
+    <div class="login-error" id="ck-error" style="margin-top:10px;text-align:center"></div>
     <button class="ck-send" id="ckSend">Enviar pedido no WhatsApp</button>
   </div>
 </div>
@@ -594,6 +595,7 @@
     document.getElementById('ckTroco').value='';
     document.getElementById('ckTrocoWrap').style.display='none';
     document.getElementById('ckObs').value='';
+    document.getElementById('ck-error').style.display='none';
     checkoutModal.classList.add('show');
   }
   function closeCheckout(){ checkoutModal.classList.remove('show'); }
@@ -614,6 +616,15 @@
     const pgto     = document.getElementById('ckPgto').value.trim();
     const troco    = document.getElementById('ckTroco').value.trim();
     const obs      = document.getElementById('ckObs').value.trim();
+    const ckErr    = document.getElementById('ck-error');
+
+    if(!nome)    { ckErr.textContent='Por favor, informe seu nome.'; ckErr.style.display='block'; return; }
+    if(!endereco){ ckErr.textContent='Por favor, informe o endereço de entrega.'; ckErr.style.display='block'; return; }
+    if(!bairro)  { ckErr.textContent='Por favor, informe o bairro.'; ckErr.style.display='block'; return; }
+    if(!ref)     { ckErr.textContent='Por favor, informe o ponto de referência.'; ckErr.style.display='block'; return; }
+    if(!pgto)    { ckErr.textContent='Por favor, selecione a forma de pagamento.'; ckErr.style.display='block'; return; }
+    if(pgto==='Dinheiro' && !troco){ ckErr.textContent='Por favor, informe o valor para o troco.'; ckErr.style.display='block'; return; }
+    ckErr.style.display='none';
 
     const {total}=totals();
     let msg="Olá, Magoga's Lanches! Quero fazer um pedido:\n\n";
